@@ -1,0 +1,66 @@
+# Lektor Responsive Images
+
+This plugin hacks up Lektor’s Markdown renderer to support
+multi-resolution responsive images in Markdown text.
+
+Local images will be resized to a variety of sizes, and `<img>` tags
+will be rendered with `srcset` and (optionally) `sizes` attributes in
+order to support the use of [responsive image
+resolutions][mdn-responsive-images].
+
+
+[mdn-responsive-images]: <https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images>
+    "MDN: Responsive Images"
+
+## Configuration
+
+The plugin is configured through `configs/responsive-images.ini`.
+Here is an annotated example:
+
+```ini
+# Currently, only a section named "default" is used
+[default]
+
+# Widths of images to generate.
+#
+# Images will be generated at these widths (but only up to the native
+# width of the image.)
+#
+# (This is the default value.)
+widths = 480 800 1200 2400
+
+# Image quality for generating scaled images
+# (This is the default value.)
+quality = 92
+
+# Width of the image put into the `src` attribute of the `<img>` tag.
+# (Though the orignal image is never up-scaled.  If the original is narrower than
+# this width, then the original image is used.)
+# (This is the default value.)
+default_width = 1200
+
+# Value put into the `sizes` attribute of the `<img>` tag.
+# The default is not to set a `sizes` attribute
+sizes = (max-width: 576px) 95vw, (max-width: 992px) 65vw, 800px
+```
+
+## Usage
+
+In the common use case, you will want to adjust the CSS stylesheet for
+your site so that images within Markdown text get either `display:
+block` or `display: inline-block`, along with `max-width: 100%`, or
+similar.
+
+## Author
+
+Jeff Dairiki <dairiki@dairiki.org>
+
+
+
+
+
+
+
+
+
+
