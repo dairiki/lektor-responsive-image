@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import inspect
 from urllib.parse import urlparse
 
 from lektor.context import get_ctx
@@ -39,10 +40,9 @@ class ResponsiveImage(object):
     def attrs(self):
         attrs = self.default_image_attrs()
         if self.srcset is not None:
-            attrs.update({
-                'sizes': self.sizes,
-                'srcset': self.srcset,
-                })
+            attrs['srcset'] = self.srcset
+            if self.sizes is not None:
+                attrs['sizes'] = self.sizes
         return attrs
 
     @cached_property
@@ -84,8 +84,13 @@ class ResponsiveImage(object):
             return image
         # We (should) never upscale.  Upscale=True is passed here
         # solely to avoid triggering a deprecation warning.
-        quality = self.config['quality']
-        return self.image.thumbnail(width, quality=quality, upscale=True)
+        args = inspect.getargspec(self.image.thumbnail).args
+        kwargs = {}
+        if 'quality' in args:
+            kwargs['quality'] = self.config['quality']
+        if 'upscale' in args:
+            kwargs['upscale'] = True
+        return self.image.thumbnail(width, **kwargs)
 
 
 def resolve_image(record, src):
@@ -143,15 +148,15 @@ class ResponsiveImagePlugin(Plugin):
         config = {}
         if 'widths' in data:
             try:
-                config['widths'] = list(map(int, inifile['widths'].split()))
+                config['widths'] = list(map(int, data['widths'].split()))
             except ValueError:
                 pass
         for key in ('quality', 'default_width'):
-            if key in inifile:
+            if key in data:
                 try:
-                    config[key] = int(inifile[key])
+                    config[key] = int(data[key])
                 except ValueError:
                     pass
-        if 'sizes' in inifile:
-            config['sizes'] = inifile['sizes']
+        if 'sizes' in data:
+            config['sizes'] = data['sizes']
         return config
