@@ -31,6 +31,8 @@ widths = 480 800 1200 2400
 
 # Image quality for generating scaled images
 # (This is the default value.)
+# NOTE: the quality parameter will be ignored if running under lektor version
+# before 3.1.
 quality = 92
 
 # Width of the image put into the `src` attribute of the `<img>` tag.

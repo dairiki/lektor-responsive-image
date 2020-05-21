@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
 import inspect
 from urllib.parse import urlparse
 
@@ -11,6 +12,18 @@ from lektor.pluginsystem import (
 from lektor.utils import join_path
 from markupsafe import escape
 from werkzeug.utils import cached_property
+
+
+def ignore_unsupported_kwargs(f):
+    getargspec = inspect.getfullargspec if hasattr(inspect, 'getfullargspec') \
+                 else inspect.getargspec
+    supported_args = getargspec(f).args
+
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        supported_kwargs = set(supported_args[len(args):]).intersection(kwargs)
+        return f(*args, **{k: kwargs[k] for k in supported_kwargs})
+    return wrapped
 
 
 def fmt_attrs(attrs):
@@ -84,13 +97,8 @@ class ResponsiveImage(object):
             return image
         # We (should) never upscale.  Upscale=True is passed here
         # solely to avoid triggering a deprecation warning.
-        args = inspect.getargspec(self.image.thumbnail).args
-        kwargs = {}
-        if 'quality' in args:
-            kwargs['quality'] = self.config['quality']
-        if 'upscale' in args:
-            kwargs['upscale'] = True
-        return self.image.thumbnail(width, **kwargs)
+        thumbnail = ignore_unsupported_kwargs(self.image.thumbnail)
+        return thumbnail(width, quality=self.config['quality'], upscale=True)
 
 
 def resolve_image(record, src):
