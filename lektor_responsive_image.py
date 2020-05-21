@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 import inspect
-from urllib.parse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:             # pragma: no cover
+    from urlparse import urlparse
 
 from lektor.context import get_ctx
 from lektor.db import Image
