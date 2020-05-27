@@ -140,6 +140,9 @@ class ResponsiveImagePlugin(Plugin):
     name = 'Responsive Image'
     description = u'Support for responsive-resolutioned images.'
 
+    def on_setup_env(self, **extra):
+        self.env.jinja_env.globals['responsive_image'] = self.responsive_image
+
     def on_markdown_config(self, config, **extra):
         config.renderer_mixins.append(ResponsiveImageMixin)
 
