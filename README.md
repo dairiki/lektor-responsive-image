@@ -1,4 +1,9 @@
-# Lektor Responsive Images
+# Lektor Responsive Images Plugin
+
+[![PyPI version](https://img.shields.io/pypi/v/lektor-responsive-image.svg)](https://pypi.org/project/lektor-responsive-image/)
+[![PyPI Supported Python Versions](https://img.shields.io/pypi/pyversions/lektor-responsive-image.svg)](https://pypi.python.org/pypi/lektor-responsive-image/)
+[![GitHub license](https://img.shields.io/github/license/dairiki/lektor-responsive-image)](https://github.com/dairiki/lektor-responsive-image/blob/master/LICENSE)
+[![GitHub Actions (Tests)](https://github.com/dairiki/lektor-responsive-image/workflows/Tests/badge.svg)](https://github.com/dairiki/lektor-responsive-image/actions)
 
 This plugin hacks up Lektor’s Markdown renderer to support
 multi-resolution responsive images in Markdown text.
