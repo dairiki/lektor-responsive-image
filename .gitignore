@@ -1,5 +1,7 @@
-dist
-build
+/dist/
+/build/
 *.pyc
 *.pyo
 *.egg-info
+/.eggs/
+/.tox/
