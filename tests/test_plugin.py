@@ -169,6 +169,11 @@ class TestResponsiveImagePlugin(object):
     def plugin(self, lektor_env):
         return ResponsiveImagePlugin(lektor_env, 'responsive-image')
 
+    def test_on_setup_env(self, plugin, lektor_env):
+        plugin.on_setup_env()
+        jinja_globals = lektor_env.jinja_env.globals
+        assert 'responsive_image' in jinja_globals
+
     def test_on_markdown_config(self, plugin):
         config = MarkdownConfig()
         plugin.on_markdown_config(config)

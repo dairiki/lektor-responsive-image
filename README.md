@@ -8,6 +8,9 @@ will be rendered with `srcset` and (optionally) `sizes` attributes in
 order to support the use of [responsive image
 resolutions][mdn-responsive-images].
 
+This plugin also registers a Jinja global function, `responsive_image`,
+which can be used to render markup for multi-resolution images from
+Jinja templates.
 
 [mdn-responsive-images]: <https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images>
     "MDN: Responsive Images"
@@ -52,6 +55,25 @@ In the common use case, you will want to adjust the CSS stylesheet for
 your site so that images within Markdown text get either `display:
 block` or `display: inline-block`, along with `max-width: 100%`, or
 similar.
+
+## Jinja global function
+
+This plugin also registers a Jinja global function named `responsive_image`.
+It expects a single argument, which should be an `Image` instance.
+It returns an object which has an `.attr` attribute whose value is
+a dict of attribute which could be set on an `<img>` tag to generate
+markup for a multi-resolution image.  E.g.
+
+```jinja2
+{% set image = this.attachments.get('figure.png') %}
+{% set img_attrs = responsive_image(image).attrs %}
+<figure class="figure">
+  <img class="figure-img" {{ img_attrs|xmlattr }}>
+  <figcaption class="figure-caption text-center">
+    {{- this.caption -}}
+  </figcaption>
+</figure>
+```
 
 ## Author
 
