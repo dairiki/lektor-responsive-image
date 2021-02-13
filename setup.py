@@ -24,8 +24,8 @@ setup(
     name='lektor-responsive-image',
     packages=find_packages(),
     py_modules=['lektor_responsive_image'],
-    # url='[link to your repository]',
-    version='0.1',
+    url='https://github.com/dairiki/lektor-responsive-image',
+    version='0.1a1',
     classifiers=[
         'Framework :: Lektor',
         'Environment :: Plugins',
