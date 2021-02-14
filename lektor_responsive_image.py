@@ -4,6 +4,7 @@ import inspect
 try:
     from urllib.parse import urlparse
 except ImportError:             # pragma: no cover
+    # py2
     from urlparse import urlparse
 
 from lektor.context import get_ctx
@@ -18,8 +19,9 @@ from werkzeug.utils import cached_property
 
 
 def ignore_unsupported_kwargs(f):
-    getargspec = inspect.getfullargspec if hasattr(inspect, 'getfullargspec') \
-                 else inspect.getargspec
+    """Discard keyword arguments unsupported by wrapped function."""
+    # py3 recommends getfullargspec, py2 has only getargspec
+    getargspec = getattr(inspect, 'getfullargspec', inspect.getargspec)
     supported_args = getargspec(f).args
 
     @wraps(f)
@@ -30,12 +32,15 @@ def ignore_unsupported_kwargs(f):
 
 
 def fmt_attrs(attrs):
+    """Format a dict to markup suitable for use as HTML tag attributes."""
     return ' '.join('{}="{}"'.format(key, escape(val))
                     for key, val in attrs.items()
                     if val is not None)
 
 
 class ResponsiveImage(object):
+    """Helper class to compute attributes for multi-resolution responsive images.
+    """
     DEFAULT_CONFIG = {
         'widths': [480, 800, 1200, 2400],
         'quality': 92,
@@ -105,6 +110,7 @@ class ResponsiveImage(object):
 
 
 def resolve_image(record, src):
+    """Resolve local image URL to Lektor Image record."""
     if record is None:
         return None
     url = urlparse(src)
@@ -121,8 +127,7 @@ def resolve_image(record, src):
 
 
 class ResponsiveImageMixin(object):
-    """Render markdown images at responsive resolutions (using srcset).
-
+    """Markdown renderer mixin to render local images at multiple resolutions.
     """
 
     def image(self, src, title, text):
@@ -138,7 +143,7 @@ class ResponsiveImageMixin(object):
 
 class ResponsiveImagePlugin(Plugin):
     name = 'Responsive Image'
-    description = u'Support for responsive-resolutioned images.'
+    description = u'Support for multi-resolution responsive images.'
 
     def on_setup_env(self, **extra):
         self.env.jinja_env.globals['responsive_image'] = self.responsive_image
