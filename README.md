@@ -69,7 +69,7 @@ It returns an object which has an `.attr` attribute whose value is
 a dict of attribute which could be set on an `<img>` tag to generate
 markup for a multi-resolution image.  E.g.
 
-```jinja2
+```html+jinja
 {% set image = this.attachments.get('figure.png') %}
 {% set img_attrs = responsive_image(image).attrs %}
 <figure class="figure">
