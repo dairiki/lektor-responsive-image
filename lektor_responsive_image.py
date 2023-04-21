@@ -1,18 +1,11 @@
-# -*- coding: utf-8 -*-
-from functools import wraps
 import inspect
-try:
-    from urllib.parse import urlparse
-except ImportError:             # pragma: no cover
-    # py2
-    from urlparse import urlparse
+from functools import wraps
+from urllib.parse import urlparse
 
 from lektor.context import get_ctx
 from lektor.db import Image
-from lektor.pluginsystem import (
-    Plugin,
-    get_plugin,
-    )
+from lektor.pluginsystem import get_plugin
+from lektor.pluginsystem import Plugin
 from lektor.utils import join_path
 from markupsafe import escape
 from werkzeug.utils import cached_property
@@ -33,12 +26,12 @@ def ignore_unsupported_kwargs(f):
 
 def fmt_attrs(attrs):
     """Format a dict to markup suitable for use as HTML tag attributes."""
-    return ' '.join('{}="{}"'.format(key, escape(val))
+    return ' '.join(f'{key}="{escape(val)}"'
                     for key, val in attrs.items()
                     if val is not None)
 
 
-class ResponsiveImage(object):
+class ResponsiveImage:
     """Helper class to compute attributes for multi-resolution responsive images.
     """
     DEFAULT_CONFIG = {
@@ -73,7 +66,7 @@ class ResponsiveImage(object):
         if len(widths) > 1:
             def image_info(width):
                 image = self.resize_image(width)
-                return "{url} {width}w".format(url=url_to(image), width=width)
+                return f"{url_to(image)} {width}w"
             return ', '.join(map(image_info, self.iter_widths()))
 
     @property
@@ -126,7 +119,7 @@ def resolve_image(record, src):
         return source
 
 
-class ResponsiveImageMixin(object):
+class ResponsiveImageMixin:
     """Markdown renderer mixin to render local images at multiple resolutions.
     """
 
@@ -136,14 +129,14 @@ class ResponsiveImageMixin(object):
             plugin = get_plugin('responsive-image', env=self.record.pad.env)
             attrs = {'alt': text, 'title': title or None}
             attrs.update(plugin.responsive_image(image).attrs)
-            return "<img {}>".format(fmt_attrs(attrs))
+            return f"<img {fmt_attrs(attrs)}>"
         else:
-            return super(ResponsiveImageMixin, self).image(src, title, text)
+            return super().image(src, title, text)
 
 
 class ResponsiveImagePlugin(Plugin):
     name = 'Responsive Image'
-    description = u'Support for multi-resolution responsive images.'
+    description = 'Support for multi-resolution responsive images.'
 
     def on_setup_env(self, **extra):
         self.env.jinja_env.globals['responsive_image'] = self.responsive_image

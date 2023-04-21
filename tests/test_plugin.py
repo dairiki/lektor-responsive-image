@@ -1,23 +1,17 @@
-# -*- coding: utf-8 -*-
 import re
 
 import pytest
-
 from inifile import IniFile
-from lektor.markdown import (
-    ImprovedRenderer,
-    MarkdownConfig,
-    )
+from lektor.markdown import ImprovedRenderer
+from lektor.markdown import MarkdownConfig
 
-from lektor_responsive_image import (
-    ResponsiveImage,
-    resolve_image,
-    ResponsiveImageMixin,
-    ResponsiveImagePlugin,
-    )
+from lektor_responsive_image import resolve_image
+from lektor_responsive_image import ResponsiveImage
+from lektor_responsive_image import ResponsiveImageMixin
+from lektor_responsive_image import ResponsiveImagePlugin
 
 
-class DummyImage(object):
+class DummyImage:
     def __init__(self, width, height, format='jpeg', quality=None):
         self.width = width
         self.height = height
@@ -29,12 +23,12 @@ class DummyImage(object):
         return DummyImage(width, height, format=self.format, quality=quality)
 
 
-class DummyContext(object):
+class DummyContext:
     def url_to(self, image):
-        return 'img-{}.jpg'.format(image.width)
+        return f'img-{image.width}.jpg'
 
 
-class TestResponsiveImage(object):
+class TestResponsiveImage:
     @pytest.fixture
     def width(self):
         return 2400
@@ -104,7 +98,7 @@ class TestResponsiveImage(object):
         assert resized.quality == 92
 
 
-class Test_resolve_image(object):
+class Test_resolve_image:
     def test_no_record(self):
         assert resolve_image(None, 'test.jpg') is None
 
@@ -137,7 +131,7 @@ def load_plugin(lektor_env):
         'responsive-image', ResponsiveImagePlugin)
 
 
-class TestResponsiveImageMixin(object):
+class TestResponsiveImageMixin:
     @pytest.fixture
     def record(self, lektor_pad):
         return lektor_pad.root
@@ -164,7 +158,7 @@ class TestResponsiveImageMixin(object):
         assert 'srcset=' not in img
 
 
-class TestResponsiveImagePlugin(object):
+class TestResponsiveImagePlugin:
     @pytest.fixture
     def plugin(self, lektor_env):
         return ResponsiveImagePlugin(lektor_env, 'responsive-image')

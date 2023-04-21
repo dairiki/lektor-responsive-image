@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 import os
 
 import pytest
-
 from lektor.builder import Builder
 from lektor.context import Context
 from lektor.project import Project
