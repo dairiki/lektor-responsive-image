@@ -1,14 +1,21 @@
 import re
+from contextlib import ExitStack
 
 import pytest
 from inifile import IniFile
-from lektor.markdown import ImprovedRenderer
-from lektor.markdown import MarkdownConfig
 
+from lektor_responsive_image import HAVE_MISTUNE0
+from lektor_responsive_image import ImprovedRenderer
+from lektor_responsive_image import MarkdownConfig
 from lektor_responsive_image import resolve_image
 from lektor_responsive_image import ResponsiveImage
 from lektor_responsive_image import ResponsiveImageMixin
 from lektor_responsive_image import ResponsiveImagePlugin
+
+try:
+    from lektor.markdown.controller import RendererContext
+except ModuleNotFoundError:
+    RendererContext = None
 
 
 class DummyImage:
@@ -131,6 +138,10 @@ def load_plugin(lektor_env):
         'responsive-image', ResponsiveImagePlugin)
 
 
+class RendererWithMixin(ResponsiveImageMixin, ImprovedRenderer):
+    pass
+
+
 class TestResponsiveImageMixin:
     @pytest.fixture
     def record(self, lektor_pad):
@@ -138,21 +149,28 @@ class TestResponsiveImageMixin:
 
     @pytest.fixture
     def mixin(self, record):
-        class Renderer(ResponsiveImageMixin, ImprovedRenderer):
-            def __init__(self, record):
-                self.record = record
-        return Renderer(record)
+        with ExitStack() as stack:
+            renderer = RendererWithMixin()
+            if RendererContext is not None:
+                stack.enter_context(
+                    RendererContext(record, meta={}, field_options={})
+                )
+            else:  # lektor < 3.4
+                renderer.record = record
+            yield renderer
 
     @pytest.mark.usefixtures('load_plugin', 'lektor_context')
     def test(self, mixin):
-        img = mixin.image('test.jpg', 'TITLE', 'ALT')
+        args = ("TITLE", "ALT") if HAVE_MISTUNE0 else ("ALT", "TITLE")
+        img = mixin.image('test.jpg', *args)
         assert re.match(r'<img.*>', img)
         assert 'alt="ALT"' in img
         assert 'srcset=' in img
 
     @pytest.mark.usefixtures('load_plugin', 'lektor_context')
     def test_not_resolvable(self, mixin):
-        img = mixin.image('foo.jpg', 'TITLE', 'ALT')
+        args = ("TITLE", "ALT") if HAVE_MISTUNE0 else ("ALT", "TITLE")
+        img = mixin.image('foo.jpg', *args)
         assert re.match(r'<img.*>', img)
         assert 'alt="ALT"' in img
         assert 'srcset=' not in img

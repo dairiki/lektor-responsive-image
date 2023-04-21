@@ -1,7 +1,7 @@
-import inspect
-from functools import wraps
+import sys
 from urllib.parse import urlparse
 
+import mistune
 from lektor.context import get_ctx
 from lektor.db import Image
 from lektor.pluginsystem import get_plugin
@@ -10,18 +10,19 @@ from lektor.utils import join_path
 from markupsafe import escape
 from werkzeug.utils import cached_property
 
+HAVE_MISTUNE0 = mistune.__version__.startswith("0.")
 
-def ignore_unsupported_kwargs(f):
-    """Discard keyword arguments unsupported by wrapped function."""
-    # py3 recommends getfullargspec, py2 has only getargspec
-    getargspec = getattr(inspect, 'getfullargspec', inspect.getargspec)
-    supported_args = getargspec(f).args
-
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        supported_kwargs = set(supported_args[len(args):]).intersection(kwargs)
-        return f(*args, **{k: kwargs[k] for k in supported_kwargs})
-    return wrapped
+try:
+    from lektor.markdown import controller_class
+except ImportError:
+    # Lektor < 3.4
+    from lektor.markdown import ImprovedRenderer
+    from lektor.markdown import MarkdownConfig
+else:
+    # Lektor >= 3.4
+    _mistune_module = sys.modules[controller_class.__module__]
+    ImprovedRenderer = _mistune_module.ImprovedRenderer
+    MarkdownConfig = _mistune_module.MarkdownConfig
 
 
 def fmt_attrs(attrs):
@@ -98,8 +99,7 @@ class ResponsiveImage:
             return image
         # We (should) never upscale.  Upscale=True is passed here
         # solely to avoid triggering a deprecation warning.
-        thumbnail = ignore_unsupported_kwargs(self.image.thumbnail)
-        return thumbnail(width, quality=self.config['quality'], upscale=True)
+        return self.image.thumbnail(width, quality=self.config['quality'], upscale=True)
 
 
 def resolve_image(record, src):
@@ -123,15 +123,21 @@ class ResponsiveImageMixin:
     """Markdown renderer mixin to render local images at multiple resolutions.
     """
 
-    def image(self, src, title, text):
-        image = resolve_image(self.record, src)
+    def image(self, src, *args):
+        # Under Lektor >= 3.4, the record is available at self.lektor.record.
+        # Prior to that, it's at self.record.
+        renderer_helper = getattr(self, "lektor", self)
+        record = renderer_helper.record
+
+        image = resolve_image(record, src)
         if image is not None and image.format in ('png', 'gif', 'jpeg'):
-            plugin = get_plugin('responsive-image', env=self.record.pad.env)
-            attrs = {'alt': text, 'title': title or None}
+            alt, title = reversed(args) if HAVE_MISTUNE0 else args
+            attrs = {'alt': alt, 'title': title or None}
+            plugin = get_plugin('responsive-image', env=record.pad.env)
             attrs.update(plugin.responsive_image(image).attrs)
             return f"<img {fmt_attrs(attrs)}>"
         else:
-            return super().image(src, title, text)
+            return super().image(src, *args)
 
 
 class ResponsiveImagePlugin(Plugin):

@@ -42,3 +42,23 @@ readme.file = ["README.md", "CHANGES.md"]
 readme.content-type = "text/markdown"
 
 [tool.setuptools_scm]
+
+
+[tool.coverage.run]
+parallel = true
+source_pkgs = [
+    "lektor_responsive_image",
+]
+
+[tool.coverage.paths]
+paths = [
+    "lektor-responsive-image",
+    ".tox/py*/*/lektor-responsive-image",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    '^\s*\.\.\.\s*$',
+    '^\s*raise\s+NotImplementedError\(\)\s*$',
+]

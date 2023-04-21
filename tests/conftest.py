@@ -1,4 +1,5 @@
 import os
+from contextlib import ExitStack
 
 import pytest
 from lektor.builder import Builder
@@ -24,7 +25,10 @@ def lektor_builder(lektor_pad, tmp_path):
 
 @pytest.fixture
 def lektor_build_state(lektor_builder):
-    with lektor_builder.new_build_state() as build_state:
+    build_state = lektor_builder.new_build_state()
+    with ExitStack() as stack:
+        if hasattr(build_state, "__enter__"):
+            build_state = stack.enter_context(build_state)  # lektor < 3.4
         yield build_state
 
 
