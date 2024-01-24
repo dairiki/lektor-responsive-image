@@ -75,7 +75,7 @@ class TestResponsiveImage:
 
     @pytest.mark.parametrize('sizes', ['600px'])
     def test_attrs_sizes(self, resp_image, sizes):
-        resp_image.attrs['sizes'] == sizes
+        assert resp_image.attrs["sizes"] == sizes
 
     @pytest.mark.parametrize('sizes', ['50vw', None])
     def test_sizes(self, resp_image, sizes):
