@@ -84,13 +84,3 @@ markup for a multi-resolution image.  E.g.
 ## Author
 
 Jeff Dairiki <dairiki@dairiki.org>
-
-
-
-
-
-
-
-
-
-
