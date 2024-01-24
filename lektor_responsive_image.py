@@ -27,20 +27,20 @@ else:
 
 def fmt_attrs(attrs):
     """Format a dict to markup suitable for use as HTML tag attributes."""
-    return ' '.join(f'{key}="{escape(val)}"'
-                    for key, val in attrs.items()
-                    if val is not None)
+    return " ".join(
+        f'{key}="{escape(val)}"' for key, val in attrs.items() if val is not None
+    )
 
 
 class ResponsiveImage:
-    """Helper class to compute attributes for multi-resolution responsive images.
-    """
+    """Helper class to compute attributes for multi-resolution responsive images."""
+
     DEFAULT_CONFIG = {
-        'widths': [480, 800, 1200, 2400],
-        'quality': 92,
-        'default_width': 1200,
-        'sizes': None,
-        }
+        "widths": [480, 800, 1200, 2400],
+        "quality": 92,
+        "default_width": 1200,
+        "sizes": None,
+    }
 
     def __init__(self, image, config=None, ctx=None):
         if config is None:
@@ -55,9 +55,9 @@ class ResponsiveImage:
     def attrs(self):
         attrs = self.default_image_attrs()
         if self.srcset is not None:
-            attrs['srcset'] = self.srcset
+            attrs["srcset"] = self.srcset
             if self.sizes is not None:
-                attrs['sizes'] = self.sizes
+                attrs["sizes"] = self.sizes
         return attrs
 
     @cached_property
@@ -65,18 +65,20 @@ class ResponsiveImage:
         url_to = self.ctx.url_to
         widths = list(self.iter_widths())
         if len(widths) > 1:
+
             def image_info(width):
                 image = self.resize_image(width)
                 return f"{url_to(image)} {width}w"
-            return ', '.join(map(image_info, self.iter_widths()))
+
+            return ", ".join(map(image_info, self.iter_widths()))
 
     @property
     def sizes(self):
-        return self.config.get('sizes')
+        return self.config.get("sizes")
 
     def iter_widths(self):
         image_width = self.image.width
-        widths = self.config.get('widths', [])
+        widths = self.config.get("widths", [])
         for w in widths:
             if w < image_width:
                 yield w
@@ -85,13 +87,13 @@ class ResponsiveImage:
                 break
 
     def default_image_attrs(self):
-        default_width = self.config.get('default_width', 800)
+        default_width = self.config.get("default_width", 800)
         default_image = self.resize_image(default_width)
         return {
-            'src': self.ctx.url_to(default_image),
-            'width': default_image.width,
-            'height': default_image.height,
-            }
+            "src": self.ctx.url_to(default_image),
+            "width": default_image.width,
+            "height": default_image.height,
+        }
 
     def resize_image(self, width):
         image = self.image
@@ -99,7 +101,7 @@ class ResponsiveImage:
             return image
         # We (should) never upscale.  Upscale=True is passed here
         # solely to avoid triggering a deprecation warning.
-        return self.image.thumbnail(width, quality=self.config['quality'], upscale=True)
+        return self.image.thumbnail(width, quality=self.config["quality"], upscale=True)
 
 
 def resolve_image(record, src):
@@ -111,8 +113,8 @@ def resolve_image(record, src):
         return None
 
     path = url.path
-    if not path.startswith('/'):
-        assert record.path is not None   # FIXME: better error reporting?
+    if not path.startswith("/"):
+        assert record.path is not None  # FIXME: better error reporting?
         path = join_path(record.path, path)
     source = record.pad.get(path)
     if isinstance(source, Image):
@@ -120,8 +122,7 @@ def resolve_image(record, src):
 
 
 class ResponsiveImageMixin:
-    """Markdown renderer mixin to render local images at multiple resolutions.
-    """
+    """Markdown renderer mixin to render local images at multiple resolutions."""
 
     def image(self, src, *args):
         # Under Lektor >= 3.4, the record is available at self.lektor.record.
@@ -130,10 +131,10 @@ class ResponsiveImageMixin:
         record = renderer_helper.record
 
         image = resolve_image(record, src)
-        if image is not None and image.format in ('png', 'gif', 'jpeg'):
+        if image is not None and image.format in ("png", "gif", "jpeg"):
             alt, title = reversed(args) if HAVE_MISTUNE0 else args
-            attrs = {'alt': alt, 'title': title or None}
-            plugin = get_plugin('responsive-image', env=record.pad.env)
+            attrs = {"alt": alt, "title": title or None}
+            plugin = get_plugin("responsive-image", env=record.pad.env)
             attrs.update(plugin.responsive_image(image).attrs)
             return f"<img {fmt_attrs(attrs)}>"
         else:
@@ -141,11 +142,11 @@ class ResponsiveImageMixin:
 
 
 class ResponsiveImagePlugin(Plugin):
-    name = 'Responsive Image'
-    description = 'Support for multi-resolution responsive images.'
+    name = "Responsive Image"
+    description = "Support for multi-resolution responsive images."
 
     def on_setup_env(self, **extra):
-        self.env.jinja_env.globals['responsive_image'] = self.responsive_image
+        self.env.jinja_env.globals["responsive_image"] = self.responsive_image
 
     def on_markdown_config(self, config, **extra):
         config.renderer_mixins.append(ResponsiveImageMixin)
@@ -161,20 +162,20 @@ class ResponsiveImagePlugin(Plugin):
         return config
 
     @staticmethod
-    def _parse_ini(inifile, section='default'):
+    def _parse_ini(inifile, section="default"):
         data = inifile.section_as_dict(section)
         config = {}
-        if 'widths' in data:
+        if "widths" in data:
             try:
-                config['widths'] = list(map(int, data['widths'].split()))
+                config["widths"] = list(map(int, data["widths"].split()))
             except ValueError:
                 pass
-        for key in ('quality', 'default_width'):
+        for key in ("quality", "default_width"):
             if key in data:
                 try:
                     config[key] = int(data[key])
                 except ValueError:
                     pass
-        if 'sizes' in data:
-            config['sizes'] = data['sizes']
+        if "sizes" in data:
+            config["sizes"] = data["sizes"]
         return config

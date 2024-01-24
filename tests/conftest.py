@@ -9,7 +9,7 @@ from lektor.project import Project
 
 @pytest.fixture
 def lektor_env():
-    site_path = os.path.join(os.path.dirname(__file__), 'test-site')
+    site_path = os.path.join(os.path.dirname(__file__), "test-site")
     return Project.from_path(site_path).make_env(load_plugins=False)
 
 
@@ -39,8 +39,7 @@ def lektor_source(lektor_pad):
 
 @pytest.fixture
 def lektor_artifact(lektor_build_state, lektor_source):
-    return lektor_build_state.new_artifact(
-        'test.html', source_obj=lektor_source)
+    return lektor_build_state.new_artifact("test.html", source_obj=lektor_source)
 
 
 @pytest.fixture

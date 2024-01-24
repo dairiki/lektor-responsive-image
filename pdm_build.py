@@ -4,7 +4,6 @@ from pathlib import Path
 
 from pdm.backend.hooks import Context
 
-
 ################################################################
 #
 # Generate dynamic README
