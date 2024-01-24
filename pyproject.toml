@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools >= 61", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [project]
 name = "lektor-responsive-image"
@@ -37,12 +37,21 @@ requires-python = ">=3.7"
 [project.entry-points."lektor.plugins"]
 responsive-image = "lektor_responsive_image:ResponsiveImagePlugin"
 
-[tool.setuptools.dynamic]
-readme.file = ["README.md", "CHANGES.md"]
-readme.content-type = "text/markdown"
+[tool.pdm.build]
+excludes = ["pdm_build.py"]
+source-includes = ["CHANGES.md", "tests/", "tox.ini"]
 
-[tool.setuptools_scm]
+[tool.pdm.version]
+source = "scm"
 
+[tool.pdm.dev-dependencies]
+dev = [
+    "lektor>=3.4.0a0",
+    "pytest>=7.4.4",
+]
+
+[tool.pdm.scripts]
+tests = "pytest tests -ra"
 
 [tool.coverage.run]
 parallel = true

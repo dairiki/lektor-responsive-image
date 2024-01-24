@@ -1,7 +1,6 @@
+__pycache__/
+/.pdm-python
 /dist/
-/build/
-*.pyc
-*.pyo
-*.egg-info
-/.eggs/
-/.tox/
+/.coverage
+/.coverage.*
+
